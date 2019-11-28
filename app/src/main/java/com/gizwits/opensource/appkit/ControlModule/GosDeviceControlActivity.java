@@ -345,43 +345,6 @@ public class GosDeviceControlActivity extends GosControlModuleBaseActivity
         }
     }
 
-    private void setHumData(final LineChart chart, ArrayList<Entry> values) {
-        LineDataSet set1;
-        if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
-            set1 = (LineDataSet) chart.getData().getDataSetByIndex(0);
-            set1.setValues(values);
-            set1.notifyDataSetChanged();
-            chart.getData().notifyDataChanged();
-            chart.notifyDataSetChanged();
-            chart.invalidate();
-        } else {
-            set1 = new LineDataSet(values, "环境湿度数据折线表");
-            set1.enableDashedLine(10f, 5f, 0f);
-            set1.setColor(Color.BLACK);
-            set1.setCircleColor(Color.BLACK);
-            set1.setLineWidth(1f);
-            set1.setCircleRadius(3f);
-            set1.setDrawCircleHole(false);
-            set1.setFormLineWidth(1f);
-            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
-            set1.setFormSize(15.f);
-            set1.setValueTextSize(9f);
-            set1.enableDashedHighlightLine(10f, 5f, 0f);
-            set1.setDrawFilled(true);
-            set1.setFillFormatter(new IFillFormatter() {
-                @Override
-                public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
-                    return chart.getAxisLeft().getAxisMinimum();
-                }
-            });
-            set1.setFillColor(Color.WHITE);
-            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
-            LineData data = new LineData(dataSets);
-            chart.setData(data);
-        }
-    }
-
     private void initEvent() {
 
         sw_bool_led_onoff.setOnClickListener(this);
@@ -517,18 +480,11 @@ public class GosDeviceControlActivity extends GosControlModuleBaseActivity
         sw_bool_led_onoff.setChecked(data_led_onoff);
         tv_data_temp.setText("当前温度" + data_temp + "℃");
         tv_data_humi.setText("当前湿度" + data_humi + "%");
-
-
-        //float tempNum = saveOneBitTwoRound(data_temp / 60);
-        //mTempView.setValue((360 * tempNum), data_temp + "℃");
-        // float humNum = saveOneBitTwoRound(data_humi / 100);
-        // mHumView.setValue(360 * humNum, data_humi + "%");
+        //取2位小数
         float data_temp_show = saveOneBitTwoRound(data_temp);
-
-
+        //根据ui，温度进度条要加40显示
         mTemperatureView.setProgress(data_temp_show + 40);
-
-        //湿度
+        //湿度的中间文字显示
         if (data_humi < 30) {
             mWaveLoadingView.setCurrent((int) data_humi, "干燥");
             mWaveLoadingView.setMaxProgress(100);
@@ -548,10 +504,10 @@ public class GosDeviceControlActivity extends GosControlModuleBaseActivity
         int second = c.get(Calendar.SECOND);
         String timeStr = hour + ":" + minute + ":" + second;
         temperIndex++;
-
+        //每次采集温度加入集合温度数据集合
         dataList.add(new Entry(temperIndex, (float) data_temp, timeStr));
         setTemperData(chart, dataList);
-
+        //每次采集湿度加入集合湿度数据集合
         dataHumList.add(new Entry(temperIndex, (float) data_humi, timeStr));
         setTemperData(chartHum, dataHumList);
 
